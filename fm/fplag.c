@@ -1,22 +1,28 @@
-#include<unistd.h>
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "func.h"
+#include "handler.h"
 
-struct plug* odir(const char* dname, struct plug *plg )
+struct fileatr* odir(const char* dname, int *listsize )
 {
 	DIR *dp = opendir(dname);
 	struct dirent *dir;
 	struct stat st;
+	char root[255];
+	getcwd(root, 255);
 	chdir(dname);
-	struct plug* tmp1=NULL;
+	struct fileatr* tmp=NULL;
+	*listsize=0;
 	while((dir=readdir(dp))!=0)
 	{
-		printf("%s\n", dir->d_name);
 		stat(dir->d_name, &st);
+		tmp=realloc(tmp, ((*listsize)+1)*sizeof(struct fileatr));
+		strcpy(tmp[*listsize].fname, dir->d_name);
+		tmp[*listsize].fsize=(int)st.st_size;
+		*listsize=*listsize+1;
+
 	}
-chdir("..");
+//chdir(root);
 closedir(dp);
-return tmp1;
+return tmp;
 }
